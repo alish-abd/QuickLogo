@@ -21,6 +21,13 @@ const ControlsWrapper = styled.div`
     background: #888;
     border-radius: 4px;
   }
+
+  @media (max-width: 724px) {
+    padding-right: 0;
+    gap: 15px;
+    height: auto;
+    overflow: visible;
+  }
 `;
 
 const ControlPanel = styled.div`
@@ -29,6 +36,10 @@ const ControlPanel = styled.div`
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 724px) {
+    padding: 20px;
+  }
 `;
 
 const PanelTitle = styled.h3`
@@ -36,6 +47,11 @@ const PanelTitle = styled.h3`
   font-size: 16px;
   font-weight: 600;
   margin: 0 0 16px 0;
+
+  @media (max-width: 724px) {
+    font-size: 18px;
+    margin: 0 0 20px 0;
+  }
 `;
 
 const ControlGroup = styled.div`
@@ -55,12 +71,21 @@ const ControlGroup = styled.div`
       gap: 12px;
     }
   }
+
+  @media (max-width: 724px) {
+    margin-bottom: 20px;
+    gap: 10px;
+  }
 `;
 
 const Label = styled.label`
   color: #666;
   font-size: 14px;
   font-weight: 500;
+
+  @media (max-width: 724px) {
+    font-size: 15px;
+  }
 `;
 
 const Select = styled.select`
@@ -68,7 +93,7 @@ const Select = styled.select`
   height: 40px;
   padding: 0 10px;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 8px;
   background-color: white;
   cursor: pointer;
   font-size: 14px;
@@ -78,6 +103,11 @@ const Select = styled.select`
     outline: none;
     border-color: #007bff;
   }
+
+  @media (max-width: 724px) {
+    height: 45px;
+    font-size: 15px;
+  }
 `;
 
 const TextInput = styled.input`
@@ -85,13 +115,18 @@ const TextInput = styled.input`
   height: 40px;
   padding: 0 10px;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 14px;
   color: #333;
 
   &:focus {
     outline: none;
     border-color: #007bff;
+  }
+
+  @media (max-width: 724px) {
+    height: 45px;
+    font-size: 15px;
   }
 `;
 
@@ -116,6 +151,15 @@ const Slider = styled.input`
       transform: scale(1.1);
     }
   }
+
+  @media (max-width: 724px) {
+    height: 6px;
+
+    &::-webkit-slider-thumb {
+      width: 20px;
+      height: 20px;
+    }
+  }
 `;
 
 const SliderContainer = styled.div`
@@ -127,6 +171,11 @@ const Value = styled.span`
   color: #666;
   min-width: 45px;
   text-align: right;
+
+  @media (max-width: 724px) {
+    font-size: 15px;
+    min-width: 50px;
+  }
 `;
 
 const ColorPicker = styled.input`
@@ -134,7 +183,7 @@ const ColorPicker = styled.input`
   height: 40px;
   padding: 0;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   -webkit-appearance: none;
   
@@ -144,7 +193,11 @@ const ColorPicker = styled.input`
   
   &::-webkit-color-swatch {
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 8px;
+  }
+
+  @media (max-width: 724px) {
+    height: 45px;
   }
 `;
 
@@ -198,8 +251,8 @@ function StyleControls({ settings, onSettingsChange }) {
         <PanelTitle>Icon Settings</PanelTitle>
         {renderSliderWithValue('Size', settings.size, 'px', {
           type: "range",
-          min: "100",
-          max: "500",
+          min: "50",
+          max: "200",
           value: settings.size,
           onChange: (e) => handleChange('size', Number(e.target.value))
         })}
@@ -237,6 +290,17 @@ function StyleControls({ settings, onSettingsChange }) {
             onChange={(e) => handleChange('iconBorderColor', e.target.value)}
           />
         </ControlGroup>
+
+        {settings.fillOpacity > 0 && (
+          <ControlGroup>
+            <Label>Fill Color</Label>
+            <ColorPicker
+              type="color"
+              value={settings.fillColor}
+              onChange={(e) => handleChange('fillColor', e.target.value)}
+            />
+          </ControlGroup>
+        )}
 
         {renderSliderWithValue('Fill Opacity', settings.fillOpacity, '', {
           type: "range",
@@ -277,6 +341,14 @@ function StyleControls({ settings, onSettingsChange }) {
             onChange={(e) => handleChange('containerBorderColor', e.target.value)}
           />
         </ControlGroup>
+
+        {renderSliderWithValue('Border Radius', settings.containerBorderRadius, '%', {
+          type: "range",
+          min: "0",
+          max: "50",
+          value: settings.containerBorderRadius,
+          onChange: (e) => handleChange('containerBorderRadius', Number(e.target.value))
+        })}
       </ControlPanel>
 
       {/* Text Settings Panel - Only shown when text is enabled */}

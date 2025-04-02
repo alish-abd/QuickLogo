@@ -9,16 +9,26 @@ const IconPickerContainer = styled.div`
   flex-direction: column;
   flex: 1;
   min-height: 0;
+
+  @media (max-width: 724px) {
+    margin-bottom: 0;
+    height: calc(100vh - 350px);
+  }
 `;
 
 const SearchInput = styled.input`
   width: 100%;
-  padding: 8px;
+  padding: 12px;
   margin-bottom: 15px;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 14px;
   flex-shrink: 0;
+
+  &:focus {
+    outline: none;
+    border-color: #2196f3;
+  }
 `;
 
 const TabContainer = styled.div`
@@ -29,6 +39,7 @@ const TabContainer = styled.div`
 `;
 
 const Tab = styled.button`
+  flex: 1;
   padding: 8px 16px;
   background: none;
   border: none;
@@ -46,27 +57,33 @@ const Tab = styled.button`
 
 const IconGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-  gap: 10px;
-  overflow-y: auto;
-  padding: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 12px;
+  padding: 12px;
   border: 1px solid #eee;
-  border-radius: 4px;
-  flex: 1;
-  min-height: 0;
+  border-radius: 8px;
+  overflow-y: auto;
+  align-content: start;
+  height: 100%;
+
+  @media (max-width: 724px) {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 15px;
+    padding: 15px;
+  }
 `;
 
 const IconButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
+  padding: 12px;
   aspect-ratio: 1;
   width: 100%;
   height: auto;
   background: ${props => props.selected ? '#e3f2fd' : 'white'};
   border: 1px solid ${props => props.selected ? '#2196f3' : '#ddd'};
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
 
@@ -79,6 +96,11 @@ const IconButton = styled.button`
     width: 24px;
     height: 24px;
     flex-shrink: 0;
+
+    @media (max-width: 724px) {
+      width: 28px;
+      height: 28px;
+    }
   }
 `;
 
@@ -86,12 +108,17 @@ const Title = styled.h3`
   margin-bottom: 15px;
   color: #333;
   flex-shrink: 0;
+  font-size: 18px;
+
+  @media (max-width: 724px) {
+    display: none;
+  }
 `;
 
-function IconPicker({ onSelectIcon }) {
+function IconPicker({ onSelectIcon, selectedIcon }) {
   const [search, setSearch] = useState('');
   const [selectedIconName, setSelectedIconName] = useState('');
-  const [activeTab, setActiveTab] = useState('outline'); // 'outline' or 'filled'
+  const [activeTab, setActiveTab] = useState('outline');
 
   const lowerCaseSearch = search.toLowerCase();
 
@@ -108,7 +135,7 @@ function IconPicker({ onSelectIcon }) {
       if (activeTab === 'filled' && !isFilled) return false;
       if (activeTab === 'outline' && isFilled) return false;
 
-      const baseName = name.replace(/^Icon/, '').replace(/Filled$/, ''); // Get base name without 'Filled'
+      const baseName = name.replace(/^Icon/, '').replace(/Filled$/, '');
       const lowerCaseBaseName = baseName.toLowerCase();
       
       // Check if search term matches English name
@@ -130,7 +157,12 @@ function IconPicker({ onSelectIcon }) {
   const handleIconSelect = (IconComponent, name) => {
     setSelectedIconName(name);
     const isFilled = name.endsWith('Filled');
-    onSelectIcon(IconComponent, isFilled);
+    onSelectIcon(IconComponent, name, isFilled);
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    // Don't clear selection when changing tabs
   };
 
   return (
@@ -145,13 +177,13 @@ function IconPicker({ onSelectIcon }) {
       <TabContainer>
         <Tab 
           active={activeTab === 'outline'} 
-          onClick={() => setActiveTab('outline')}
+          onClick={() => handleTabChange('outline')}
         >
           Outline
         </Tab>
         <Tab 
           active={activeTab === 'filled'} 
-          onClick={() => setActiveTab('filled')}
+          onClick={() => handleTabChange('filled')}
         >
           Filled
         </Tab>

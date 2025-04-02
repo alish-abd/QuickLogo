@@ -55,7 +55,7 @@ const IconContainer = styled.div`
   height: ${props => props.size}px;
   background-color: ${props => props.backgroundColor};
   border: ${props => props.containerBorderWidth}px solid ${props => props.containerBorderColor};
-  border-radius: 20%;
+  border-radius: ${props => props.containerBorderRadius}%;
   flex-shrink: 0;
   padding: ${props => props.padding}px;
   transition: all 0.3s ease;
@@ -130,9 +130,10 @@ function LogoPreview({ icon: Icon, settings, iconName }) {
                 <Icon
                   size={iconSize}
                   style={{
-                    opacity: 1 - settings.fillOpacity,
+                    opacity: 1,
                     stroke: settings.iconBorderColor,
                     strokeWidth: settings.iconBorderWidth,
+                    fill: settings.fillOpacity > 0 ? settings.fillColor : 'none',
                     flexShrink: 0,
                     width: '100%',
                     height: '100%',
