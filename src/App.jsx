@@ -104,10 +104,7 @@ const CanvasArea = styled.div`
 const RightSidebar = styled.div`
   width: 300px; 
   flex-shrink: 0; 
-  background: white;
-  padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto; 
   display: flex; 
   flex-direction: column;
@@ -136,6 +133,16 @@ function App() {
   const [selectedIcon, setSelectedIcon] = useState(null)
   const [selectedIconName, setSelectedIconName] = useState('')
   const [styleSettings, setStyleSettings] = useState({
+    // Layout settings
+    layoutType: 'icon-only',
+    logoText: '',
+    fontFamily: 'Inter',
+    fontSize: 32,
+    fontWeight: '500',
+    textColor: '#000000',
+    textIconGap: 20,
+    
+    // Existing settings
     size: 400,
     backgroundColor: '#ffffff',
     containerBorderWidth: 2,
@@ -144,7 +151,7 @@ function App() {
     iconBorderColor: '#000000',
     fillOpacity: 0,
     rotate: 0,
-    padding: 20 // Add default padding
+    padding: 20
   })
 
   const handleIconSelect = (IconComponent, isFilled) => {

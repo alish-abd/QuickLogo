@@ -13,16 +13,16 @@ const PreviewWrapper = styled.div`
 
 // This is the new visually distinct export area
 const ExportZone = styled.div`
-  width: 500px; /* Fixed size for export area */
-  height: 500px;
+  width: ${props => props.width}px;
+  height: ${props => props.height}px;
   background-color: white;
   border: 2px dashed #aaa; /* Dashed border to indicate export zone */
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden; /* Hide parts of the logo if it exceeds the zone */
   position: relative; /* Added for potential future use */
+  transition: all 0.3s ease;
 `;
 
 const IconName = styled.div`
@@ -42,18 +42,42 @@ const IconName = styled.div`
 const LogoContainer = styled.div`
   display: flex;
   align-items: center;
+  gap: ${props => props.textIconGap}px;
+  transition: all 0.3s ease;
+  padding: ${props => props.padding}px;
+`;
+
+const IconContainer = styled.div`
+  display: flex;
+  align-items: center;
   justify-content: center;
   width: ${props => props.size}px;
   height: ${props => props.size}px;
-  max-width: 100%;
-  max-height: 100%;
   background-color: ${props => props.backgroundColor};
   border: ${props => props.containerBorderWidth}px solid ${props => props.containerBorderColor};
   border-radius: 20%;
-  transform: rotate(${props => props.rotate}deg);
-  transition: all 0.3s ease;
   flex-shrink: 0;
   padding: ${props => props.padding}px;
+  transition: all 0.3s ease;
+`;
+
+const IconWrapper = styled.div`
+  transform: rotate(${props => props.rotate}deg);
+  transition: transform 0.3s ease;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const LogoText = styled.div`
+  font-family: ${props => props.fontFamily}, sans-serif;
+  font-size: ${props => props.fontSize}px;
+  font-weight: ${props => props.fontWeight};
+  color: ${props => props.textColor};
+  white-space: nowrap;
+  flex-shrink: 0;
 `;
 
 const PlaceholderText = styled.div`
@@ -63,33 +87,69 @@ const PlaceholderText = styled.div`
 `;
 
 function LogoPreview({ icon: Icon, settings, iconName }) {
-  const clampedSize = Math.min(settings.size, 500);
-  // Calculate icon size to fill the container better, accounting for padding
-  const iconSize = Math.floor(clampedSize - (settings.padding * 2));
+  const isTextLayout = settings.layoutType === 'icon-text' && settings.logoText;
+  
+  // Use the user-defined size directly
+  const containerSize = settings.size;
+  const iconSize = Math.floor(containerSize - (settings.padding * 2));
+  
+  // Calculate export zone dimensions
+  const padding = 40; // Padding around the entire logo
+  const exportWidth = isTextLayout 
+    ? containerSize + (settings.textIconGap || 0) + (settings.fontSize * settings.logoText.length * 0.6) + (padding * 2)
+    : containerSize + (padding * 2);
+  const exportHeight = Math.max(
+    containerSize + (padding * 2),
+    (settings.fontSize || 0) + (padding * 2)
+  );
+
+  // Remove rotate from settings to prevent it from being spread to IconContainer
+  const { rotate, ...containerSettings } = settings;
 
   return (
     // Use the wrapper div for overall centering and background
     <PreviewWrapper>
       {iconName && <IconName>{iconName}</IconName>}
       {/* The ExportZone is the element to be downloaded */}
-      <ExportZone id="logo-preview">
+      <ExportZone 
+        id="logo-preview" 
+        width={exportWidth}
+        height={exportHeight}
+      >
         {!Icon ? (
           <PlaceholderText>
             Select an icon to start creating your logo
           </PlaceholderText>
         ) : (
-          <LogoContainer {...settings} size={clampedSize}>
-            <Icon
-              size={iconSize}
-              style={{
-                opacity: 1 - settings.fillOpacity,
-                stroke: settings.iconBorderColor,
-                strokeWidth: settings.iconBorderWidth,
-                flexShrink: 0,
-                width: '100%',
-                height: '100%',
-              }}
-            />
+          <LogoContainer 
+            textIconGap={settings.textIconGap}
+            padding={padding}
+          >
+            <IconContainer {...containerSettings} size={containerSize}>
+              <IconWrapper rotate={rotate}>
+                <Icon
+                  size={iconSize}
+                  style={{
+                    opacity: 1 - settings.fillOpacity,
+                    stroke: settings.iconBorderColor,
+                    strokeWidth: settings.iconBorderWidth,
+                    flexShrink: 0,
+                    width: '100%',
+                    height: '100%',
+                  }}
+                />
+              </IconWrapper>
+            </IconContainer>
+            {isTextLayout && (
+              <LogoText
+                fontFamily={settings.fontFamily}
+                fontSize={settings.fontSize}
+                fontWeight={settings.fontWeight}
+                textColor={settings.textColor}
+              >
+                {settings.logoText}
+              </LogoText>
+            )}
           </LogoContainer>
         )}
       </ExportZone>
