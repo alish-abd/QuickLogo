@@ -21,6 +21,29 @@ const SearchInput = styled.input`
   flex-shrink: 0;
 `;
 
+const TabContainer = styled.div`
+  display: flex;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #ddd;
+  flex-shrink: 0;
+`;
+
+const Tab = styled.button`
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid ${props => props.active ? '#2196f3' : 'transparent'};
+  color: ${props => props.active ? '#2196f3' : '#666'};
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: ${props => props.active ? '600' : '400'};
+  transition: all 0.2s;
+
+  &:hover {
+    color: #2196f3;
+  }
+`;
+
 const IconGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
@@ -68,10 +91,11 @@ const Title = styled.h3`
 function IconPicker({ onSelectIcon }) {
   const [search, setSearch] = useState('');
   const [selectedIconName, setSelectedIconName] = useState('');
+  const [activeTab, setActiveTab] = useState('outline'); // 'outline' or 'filled'
 
   const lowerCaseSearch = search.toLowerCase();
 
-  // Filter icons based on search (English name or Russian keywords)
+  // Filter icons based on search and tab selection
   const icons = Object.entries(TablerIcons)
     .filter(([name]) => {
       // Basic filtering (must be an icon, not a brand icon)
@@ -79,7 +103,12 @@ function IconPicker({ onSelectIcon }) {
         return false;
       }
 
-      const baseName = name.replace(/^Icon/, ''); // Get base name (e.g., 'Search')
+      // Filter based on tab selection
+      const isFilled = name.endsWith('Filled');
+      if (activeTab === 'filled' && !isFilled) return false;
+      if (activeTab === 'outline' && isFilled) return false;
+
+      const baseName = name.replace(/^Icon/, '').replace(/Filled$/, ''); // Get base name without 'Filled'
       const lowerCaseBaseName = baseName.toLowerCase();
       
       // Check if search term matches English name
@@ -95,12 +124,13 @@ function IconPicker({ onSelectIcon }) {
         );
       }
 
-      return false; // No match found
+      return false;
     });
 
   const handleIconSelect = (IconComponent, name) => {
     setSelectedIconName(name);
-    onSelectIcon(IconComponent);
+    const isFilled = name.endsWith('Filled');
+    onSelectIcon(IconComponent, isFilled);
   };
 
   return (
@@ -112,13 +142,27 @@ function IconPicker({ onSelectIcon }) {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
+      <TabContainer>
+        <Tab 
+          active={activeTab === 'outline'} 
+          onClick={() => setActiveTab('outline')}
+        >
+          Outline
+        </Tab>
+        <Tab 
+          active={activeTab === 'filled'} 
+          onClick={() => setActiveTab('filled')}
+        >
+          Filled
+        </Tab>
+      </TabContainer>
       <IconGrid>
         {icons.map(([name, IconComponent]) => (
           <IconButton
             key={name}
             selected={name === selectedIconName}
             onClick={() => handleIconSelect(IconComponent, name)}
-            title={name.replace('Icon', '')}
+            title={name.replace('Icon', '').replace(/Filled$/, '')}
           >
             <IconComponent size={24} />
           </IconButton>

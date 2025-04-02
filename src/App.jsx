@@ -16,6 +16,65 @@ const AppContainer = styled.div`
   gap: 20px; /* Add gap between columns */
 `
 
+const ControlGroup = styled.div`
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
+const Label = styled.label`
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+`
+
+const Slider = styled.input`
+  width: 100%;
+  height: 4px;
+  -webkit-appearance: none;
+  background: #ddd;
+  border-radius: 2px;
+  outline: none;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+`
+
+const Value = styled.span`
+  font-size: 12px;
+  color: #666;
+  text-align: right;
+`
+
+const ColorPicker = styled.input`
+  width: 100%;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  &::-webkit-color-swatch {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+`
+
 // Renamed and adjusted for the left column
 const LeftSidebar = styled.div`
   width: 250px; /* Slightly narrower */
@@ -75,16 +134,32 @@ const ExportButton = styled.button`
 
 function App() {
   const [selectedIcon, setSelectedIcon] = useState(null)
+  const [selectedIconName, setSelectedIconName] = useState('')
   const [styleSettings, setStyleSettings] = useState({
     size: 400,
-    rotate: 0,
-    containerBorderWidth: 1.4,
-    containerBorderColor: '#cccccc',
+    backgroundColor: '#ffffff',
+    containerBorderWidth: 2,
+    containerBorderColor: '#000000',
     iconBorderWidth: 1.4,
     iconBorderColor: '#000000',
-    backgroundColor: '#ff9999',
     fillOpacity: 0,
+    rotate: 0,
+    padding: 20 // Add default padding
   })
+
+  const handleIconSelect = (IconComponent, isFilled) => {
+    setSelectedIcon(IconComponent)
+    // Get the icon name from the component's displayName or name
+    const iconName = IconComponent?.displayName || IconComponent?.name || ''
+    // Clean up the name by removing 'Icon' prefix and 'Filled' suffix
+    const cleanName = iconName.replace(/^Icon/, '').replace(/Filled$/, '')
+    setSelectedIconName(cleanName)
+    // Automatically set the border width based on icon type
+    setStyleSettings(prev => ({
+      ...prev,
+      iconBorderWidth: isFilled ? 0 : 1.4
+    }))
+  }
 
   const handleExport = async (format) => {
     const element = document.getElementById('logo-preview')
@@ -125,11 +200,18 @@ function App() {
     }
   }
 
+  const handleStyleChange = (setting, value) => {
+    setStyleSettings(prev => ({
+      ...prev,
+      [setting]: value
+    }))
+  }
+
   return (
     <AppContainer>
       {/* Left Column */}
       <LeftSidebar>
-        <IconPicker onSelectIcon={setSelectedIcon} />
+        <IconPicker onSelectIcon={handleIconSelect} />
       </LeftSidebar>
       
       {/* Center Column */}
@@ -137,14 +219,15 @@ function App() {
         <LogoPreview 
           icon={selectedIcon} 
           settings={styleSettings} 
+          iconName={selectedIconName}
         />
       </CanvasArea>
       
       {/* Right Column */}
       <RightSidebar>
         <StyleControls 
-          settings={styleSettings} 
-          onSettingsChange={setStyleSettings} 
+          settings={styleSettings}
+          onSettingsChange={setStyleSettings}
         />
         <ExportButtonContainer>
           <ExportButton onClick={() => handleExport('png')}>

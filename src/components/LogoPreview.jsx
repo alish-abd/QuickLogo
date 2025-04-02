@@ -18,27 +18,42 @@ const ExportZone = styled.div`
   background-color: white;
   border: 2px dashed #aaa; /* Dashed border to indicate export zone */
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden; /* Hide parts of the logo if it exceeds the zone */
   position: relative; /* Added for potential future use */
 `;
 
+const IconName = styled.div`
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 20px;
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+`;
+
 const LogoContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Size is controlled by settings */
   width: ${props => props.size}px;
   height: ${props => props.size}px;
-  max-width: 100%; /* Ensure container doesn't overflow export zone */
+  max-width: 100%;
   max-height: 100%;
   background-color: ${props => props.backgroundColor};
   border: ${props => props.containerBorderWidth}px solid ${props => props.containerBorderColor};
   border-radius: 20%;
   transform: rotate(${props => props.rotate}deg);
   transition: all 0.3s ease;
-  flex-shrink: 0; /* Prevent shrinking smaller than specified size */
+  flex-shrink: 0;
+  padding: ${props => props.padding}px;
 `;
 
 const PlaceholderText = styled.div`
@@ -47,16 +62,15 @@ const PlaceholderText = styled.div`
   text-align: center;
 `;
 
-function LogoPreview({ icon: Icon, settings }) {
-  // Calculate the actual size for the LogoContainer, clamped to the ExportZone dimensions
-  // Assuming ExportZone is 500x500 based on styles above
+function LogoPreview({ icon: Icon, settings, iconName }) {
   const clampedSize = Math.min(settings.size, 500);
-  // Calculate icon size based on the *clamped* container size
-  const iconSize = Math.floor(clampedSize * 0.6); 
+  // Calculate icon size to fill the container better, accounting for padding
+  const iconSize = Math.floor(clampedSize - (settings.padding * 2));
 
   return (
     // Use the wrapper div for overall centering and background
     <PreviewWrapper>
+      {iconName && <IconName>{iconName}</IconName>}
       {/* The ExportZone is the element to be downloaded */}
       <ExportZone id="logo-preview">
         {!Icon ? (
@@ -64,7 +78,6 @@ function LogoPreview({ icon: Icon, settings }) {
             Select an icon to start creating your logo
           </PlaceholderText>
         ) : (
-          // Pass the clampedSize to the LogoContainer
           <LogoContainer {...settings} size={clampedSize}>
             <Icon
               size={iconSize}
@@ -72,7 +85,9 @@ function LogoPreview({ icon: Icon, settings }) {
                 opacity: 1 - settings.fillOpacity,
                 stroke: settings.iconBorderColor,
                 strokeWidth: settings.iconBorderWidth,
-                flexShrink: 0, // Prevent icon from shrinking if container gets small
+                flexShrink: 0,
+                width: '100%',
+                height: '100%',
               }}
             />
           </LogoContainer>
