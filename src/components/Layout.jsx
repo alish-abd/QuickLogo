@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 const LayoutContainer = styled.div`
@@ -63,10 +63,13 @@ const LeftSidebar = styled.div`
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  height: 100%;
 
   @media (max-width: 724px) {
     width: 100%;
     display: ${props => props.activeTab === 'icon' ? 'flex' : 'none'};
+    order: 2;
+    height: calc(100vh - 350px);
   }
 `;
 
@@ -79,11 +82,14 @@ const CanvasArea = styled.div`
   align-items: center;
   background-color: transparent;
   border-radius: 10px;
+  position: relative;
 
   @media (max-width: 724px) {
     padding: 10px;
     min-height: 250px;
     max-height: 250px;
+    order: 1;
+    display: ${props => (props.activeTab === 'icon' || props.activeTab === 'settings') ? 'flex' : 'none'};
   }
 `;
 
@@ -101,37 +107,76 @@ const RightSidebar = styled.div`
     max-height: calc(100vh - 400px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    order: 2;
   }
 `;
 
-function Layout({ leftSidebar, canvas, rightSidebar }) {
-  const [activeTab, setActiveTab] = useState('icon');
+function Layout({ leftSidebar, canvas, rightSidebar, activeTab = 'icon', onTabChange }) {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 724);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 724);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Use the provided tab state if available, otherwise use internal state
+  const handleTabChange = tab => {
+    if (onTabChange) {
+      onTabChange(tab);
+    }
+  };
 
   return (
     <LayoutContainer>
-      <TabContainer>
-        <Tab 
-          active={activeTab === 'icon'} 
-          onClick={() => setActiveTab('icon')}
-        >
-          Select icon
-        </Tab>
-        <Tab 
-          active={activeTab === 'settings'} 
-          onClick={() => setActiveTab('settings')}
-        >
-          Settings
-        </Tab>
-      </TabContainer>
-      <LeftSidebar activeTab={activeTab}>
-        {leftSidebar}
-      </LeftSidebar>
-      <CanvasArea>
-        {canvas}
-      </CanvasArea>
-      <RightSidebar activeTab={activeTab}>
-        {rightSidebar}
-      </RightSidebar>
+      {isMobile ? (
+        <>
+          <TabContainer>
+            <Tab 
+              active={activeTab === 'icon'} 
+              onClick={() => handleTabChange('icon')}
+            >
+              Select icon
+            </Tab>
+            <Tab 
+              active={activeTab === 'settings'} 
+              onClick={() => handleTabChange('settings')}
+            >
+              Settings
+            </Tab>
+          </TabContainer>
+          
+          {/* Canvas comes first in mobile */}
+          <CanvasArea activeTab={activeTab}>
+            {canvas}
+          </CanvasArea>
+          
+          <LeftSidebar activeTab={activeTab}>
+            {leftSidebar}
+          </LeftSidebar>
+          
+          <RightSidebar activeTab={activeTab}>
+            {rightSidebar}
+          </RightSidebar>
+        </>
+      ) : (
+        <>
+          <LeftSidebar>
+            {leftSidebar}
+          </LeftSidebar>
+          
+          <CanvasArea>
+            {canvas}
+          </CanvasArea>
+          
+          <RightSidebar>
+            {rightSidebar}
+          </RightSidebar>
+        </>
+      )}
     </LayoutContainer>
   );
 }

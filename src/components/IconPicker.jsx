@@ -9,9 +9,11 @@ const IconPickerContainer = styled.div`
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  height: 100%;
 
   @media (max-width: 724px) {
     margin-bottom: 0;
+    margin-top: 10px;
     height: calc(100vh - 350px);
   }
 `;
@@ -64,12 +66,14 @@ const IconGrid = styled.div`
   border-radius: 8px;
   overflow-y: auto;
   align-content: start;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
 
   @media (max-width: 724px) {
     grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
     gap: 15px;
     padding: 15px;
+    max-height: calc(100% - 120px); /* Account for search and tabs */
   }
 `;
 
