@@ -69,7 +69,7 @@ const LeftSidebar = styled.div`
     width: 100%;
     display: ${props => props.activeTab === 'icon' ? 'flex' : 'none'};
     order: 2;
-    height: calc(100vh - 350px);
+    height: calc(100dvh - 350px);
   }
 `;
 
@@ -104,7 +104,7 @@ const RightSidebar = styled.div`
   @media (max-width: 724px) {
     width: 100%;
     display: ${props => props.activeTab === 'settings' ? 'flex' : 'none'};
-    max-height: calc(100vh - 400px);
+    max-height: calc(100dvh - 350px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     order: 2;

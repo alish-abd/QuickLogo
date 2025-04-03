@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { useState, useEffect } from 'react';
 
 const ControlsWrapper = styled.div`
   display: flex;
@@ -201,22 +202,177 @@ const ColorPicker = styled.input`
   }
 `;
 
+const CustomFontSelect = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const SelectedFont = styled.div`
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+
+  .font-name {
+    color: #666;
+    font-family: system-ui, -apple-system, sans-serif;
+    min-width: 120px;
+  }
+
+  .font-preview {
+    font-family: ${props => props.fontFamily}, sans-serif;
+    margin-left: 12px;
+    flex: 1;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 20px;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #666;
+  }
+
+  &:hover {
+    border-color: #bbb;
+  }
+
+  @media (max-width: 724px) {
+    height: 45px;
+    font-size: 15px;
+  }
+`;
+
+const FontDropdown = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: ${props => props.isOpen ? 'block' : 'none'};
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+`;
+
+const FontOption = styled.div`
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+
+  .font-name {
+    color: #666;
+    font-family: system-ui, -apple-system, sans-serif;
+    min-width: 120px;
+  }
+
+  .font-preview {
+    font-family: ${props => props.fontFamily}, sans-serif;
+    margin-left: 12px;
+    flex: 1;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  ${props => props.isSelected && `
+    background-color: #e3f2fd;
+    .font-name {
+      color: #007bff;
+      font-weight: 500;
+    }
+  `}
+
+  @media (max-width: 724px) {
+    padding: 12px 15px;
+    font-size: 15px;
+  }
+`;
+
 const fontOptions = [
   { name: 'Inter', weight: '400,500,600,700' },
+  { name: 'Inter Tight', weight: '400,500,600,700' },
   { name: 'Montserrat', weight: '400,500,600,700' },
   { name: 'Open Sans', weight: '400,500,600,700' },
   { name: 'Poppins', weight: '400,500,600,700' },
   { name: 'Roboto', weight: '400,500,700' },
   { name: 'Playfair Display', weight: '400,500,600,700' },
+  { name: 'Space Grotesk', weight: '400,500,600,700' },
+  { name: 'Plus Jakarta Sans', weight: '400,500,600,700' },
+  { name: 'Manrope', weight: '400,500,600,700' },
+  { name: 'Outfit', weight: '400,500,600,700' },
+  { name: 'DM Sans', weight: '400,500,600,700' },
+  { name: 'Figtree', weight: '400,500,600,700' },
+  { name: 'Geist', weight: '400,500,600,700' }
 ];
 
 function StyleControls({ settings, onSettingsChange }) {
+  const [isFontDropdownOpen, setIsFontDropdownOpen] = useState(false);
+
   const handleChange = (key, value) => {
     onSettingsChange({
       ...settings,
       [key]: value
     });
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.font-dropdown-container')) {
+        setIsFontDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   const renderSliderWithValue = (label, value, unit, props) => (
     <ControlGroup className="with-value">
@@ -367,21 +523,35 @@ function StyleControls({ settings, onSettingsChange }) {
 
           <ControlGroup>
             <Label>Font Family</Label>
-            <Select
-              value={settings.fontFamily}
-              onChange={(e) => handleChange('fontFamily', e.target.value)}
-              style={{ fontFamily: settings.fontFamily }}
-            >
-              {fontOptions.map(font => (
-                <option 
-                  key={font.name} 
-                  value={font.name}
-                  style={{ fontFamily: font.name }}
-                >
-                  {font.name}
-                </option>
-              ))}
-            </Select>
+            <CustomFontSelect className="font-dropdown-container">
+              <SelectedFont 
+                fontFamily={settings.fontFamily}
+                onClick={() => setIsFontDropdownOpen(!isFontDropdownOpen)}
+              >
+                <span className="font-name">{settings.fontFamily}</span>
+                <span className="font-preview">
+                  {settings.logoText || 'Preview text'}
+                </span>
+              </SelectedFont>
+              <FontDropdown isOpen={isFontDropdownOpen}>
+                {fontOptions.map(font => (
+                  <FontOption
+                    key={font.name}
+                    fontFamily={font.name}
+                    isSelected={settings.fontFamily === font.name}
+                    onClick={() => {
+                      handleChange('fontFamily', font.name);
+                      setIsFontDropdownOpen(false);
+                    }}
+                  >
+                    <span className="font-name">{font.name}</span>
+                    <span className="font-preview">
+                      {settings.logoText || 'Preview text'}
+                    </span>
+                  </FontOption>
+                ))}
+              </FontDropdown>
+            </CustomFontSelect>
           </ControlGroup>
 
           <ControlGroup>

@@ -14,7 +14,7 @@ const IconPickerContainer = styled.div`
   @media (max-width: 724px) {
     margin-bottom: 0;
     margin-top: 10px;
-    height: calc(100vh - 350px);
+    height: calc(100dvh - 350px);
   }
 `;
 
