@@ -24,8 +24,14 @@ const TabContainer = styled.div`
   @media (max-width: 724px) {
     display: flex;
     width: 100%;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 10px;
+    border-top: 1px solid #ddd;
+    margin-top: 10px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    background: white;
+    z-index: 100;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -51,6 +57,20 @@ const Tab = styled.button`
   &:hover {
     background: #f0f0f0;
   }
+
+  @media (max-width: 724px) {
+    border: none;
+    border-top: 2px solid ${props => props.active ? '#2196f3' : 'transparent'};
+    border-radius: 0 !important;
+    
+    &:first-child {
+      border-top-left-radius: 0;
+    }
+
+    &:last-child {
+      border-top-right-radius: 0;
+    }
+  }
 `;
 
 const LeftSidebar = styled.div`
@@ -70,6 +90,7 @@ const LeftSidebar = styled.div`
     display: ${props => props.activeTab === 'icon' ? 'flex' : 'none'};
     order: 2;
     height: calc(100dvh - 350px);
+    margin-bottom: 60px; /* Add space for the bottom tabs */
   }
 `;
 
@@ -108,6 +129,7 @@ const RightSidebar = styled.div`
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     order: 2;
+    margin-bottom: 60px; /* Add space for the bottom tabs */
   }
 `;
 
@@ -134,6 +156,20 @@ function Layout({ leftSidebar, canvas, rightSidebar, activeTab = 'icon', onTabCh
     <LayoutContainer>
       {isMobile ? (
         <>
+          {/* Canvas comes first in mobile */}
+          <CanvasArea activeTab={activeTab}>
+            {canvas}
+          </CanvasArea>
+          
+          <LeftSidebar activeTab={activeTab}>
+            {leftSidebar}
+          </LeftSidebar>
+          
+          <RightSidebar activeTab={activeTab}>
+            {rightSidebar}
+          </RightSidebar>
+          
+          {/* Move TabContainer to the end (bottom) */}
           <TabContainer>
             <Tab 
               active={activeTab === 'icon'} 
@@ -148,19 +184,6 @@ function Layout({ leftSidebar, canvas, rightSidebar, activeTab = 'icon', onTabCh
               Settings
             </Tab>
           </TabContainer>
-          
-          {/* Canvas comes first in mobile */}
-          <CanvasArea activeTab={activeTab}>
-            {canvas}
-          </CanvasArea>
-          
-          <LeftSidebar activeTab={activeTab}>
-            {leftSidebar}
-          </LeftSidebar>
-          
-          <RightSidebar activeTab={activeTab}>
-            {rightSidebar}
-          </RightSidebar>
         </>
       ) : (
         <>
